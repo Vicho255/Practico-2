@@ -1,0 +1,41 @@
+services:
+  web:
+    build: ./app           # <-- importante: apunta a la carpeta app
+    container_name: php_crud_app
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_NAME: crud_db
+      DB_USER: user
+      DB_PASSWORD: pass
+    networks:
+      - crud_network
+    volumes:
+      - ./app:/var/www/html
+
+  db:
+    image: mysql:8.0
+    container_name: mysql_crud_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: crud_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - crud_network
+    ports:
+      - "3306:3306"
+
+volumes:
+  db_data:
+
+networks:
+  crud_network:
+    driver: bridge
